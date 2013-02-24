@@ -1,0 +1,41 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="galaxy.js"></script>
+<script type="text/javascript" src="universe.js"></script>
+<script type="text/javascript" src="mocks.js"></script>
+
+<link href="screen.css" type="text/css" rel="stylesheet" media="screen">
+
+<!DOCTYPE html>
+<html>
+ <head>
+ </head>
+ <body>   
+ 	<canvas class="galaxy-canvas"></canvas>
+ 	<canvas class="galaxy-canvas"></canvas> 
+ 	<canvas class="galaxy-canvas"></canvas> 
+ 	<canvas class="galaxy-canvas"></canvas> 
+ 	<canvas class="galaxy-canvas"></canvas> 
+ 	<canvas class="galaxy-canvas"></canvas> 
+ </body>
+</html>
+
+<script>
+$().ready(function(){		
+	var xMax = 500; 
+	var yMax = 500;
+	var planetMax = (yMax + xMax) / 100;
+	var radiusMin = 10;
+	var radiusMax = (yMax + xMax) * .05;
+
+	var $galaxies = $(".galaxy-canvas");
+	$galaxies.each(function(){
+		var myGalaxy = new galaxy(this, xMax, yMax);
+		var planets = GeneratePlanets(planetMax, xMax, yMax, radiusMin, radiusMax);	
+		for (var i = 0; i < planets.length; i++) {
+			myGalaxy.drawPlanet(planets[i].x, planets[i].y, planets[i].radius);    	
+		}
+	});
+	//var myGalaxy = new galaxy(".galaxy-canvas", xMax, yMax);
+});
+</script>
+

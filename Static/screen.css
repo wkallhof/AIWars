@@ -1,0 +1,12 @@
+body{
+	background-color: black;	
+	margin: 5px;
+	
+}
+
+.galaxy-canvas {		
+	margin: -1px;
+	margin-top: -2px;	
+	background-color: black;
+	border: 1px dashed #280000;
+}
