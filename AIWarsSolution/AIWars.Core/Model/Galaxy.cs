@@ -37,9 +37,9 @@ namespace AIWars.Core.Model
 
         private void PopulatePoints(int galaxySize)
         {
-            for (int x = 1; x <= galaxySize; x++)
+            for (int x = 0; x <= galaxySize; x++)
             {
-                for (int y = 1; y <= galaxySize; y++)
+                for (int y = 0; y <= galaxySize; y++)
                 {
                     _points.Add(new Point { Populated = false, X = x, Y = y });
                 }

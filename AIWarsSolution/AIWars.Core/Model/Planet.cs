@@ -8,7 +8,7 @@ namespace AIWars.Core.Model
 {
     public class Planet
     {
-        private readonly int _size;
+        private int _size;
 
         public Planet(int size)
         {
@@ -21,6 +21,11 @@ namespace AIWars.Core.Model
             {
                 return _size;
             }
+
+			set
+			{
+				_size = value;
+			}
         }
 
         public Point Point { get; set; }
