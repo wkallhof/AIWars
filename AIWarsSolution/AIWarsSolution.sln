@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIWars.Core.Tests", "AIWars
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{068912CC-C221-4D63-8E2E-ED747FF2DF00}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIWars.ConsoleApp", "AIWars.Console\AIWars.ConsoleApp.csproj", "{73305ED6-9A66-43D4-9F05-E16CCE88B08E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{535AD3F1-C7D7-4777-96F5-116E935C414F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{535AD3F1-C7D7-4777-96F5-116E935C414F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{535AD3F1-C7D7-4777-96F5-116E935C414F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73305ED6-9A66-43D4-9F05-E16CCE88B08E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73305ED6-9A66-43D4-9F05-E16CCE88B08E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73305ED6-9A66-43D4-9F05-E16CCE88B08E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73305ED6-9A66-43D4-9F05-E16CCE88B08E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
