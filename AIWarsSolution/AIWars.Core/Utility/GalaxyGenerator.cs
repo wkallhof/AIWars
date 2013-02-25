@@ -12,162 +12,161 @@ namespace AIWars.Core.Utility
         private readonly Random _randomGenerator;
         private readonly int _maximumPlanetCount;
         private readonly int _maximumPlanetSize;
+		private readonly int _minimumPlanetSize;
+		private readonly int _minimumPlanetDistance;
         private readonly Galaxy _galaxy;
 
-        public GalaxyGenerator(int maximumPlanetCount, int maximumPlanetSize, int galaxySize)
-        {
-            if (maximumPlanetCount < 2)
-            {
-                throw new ArgumentOutOfRangeException("maximumPlanetCount", "The minimum number of planets is two");
-            }
+		private bool _keepGrowing;
 
-            if (galaxySize < (maximumPlanetSize * 4))
-            {
-                var exceptionMsg = string.Format("The minimum galaxy size for size {0} planets is {1}", maximumPlanetSize, maximumPlanetSize * 4);
-                throw new ArgumentOutOfRangeException("galaxySize", exceptionMsg);
-            }
+        public GalaxyGenerator(int maximumPlanetCount, int maximumPlanetSize, int minimumPlanetSize, int galaxySize, int minimumPlanetDistance, int galaxySeed = 0)
+        {
+
+			if (maximumPlanetCount < 2)
+			{
+				throw new ArgumentOutOfRangeException("maximumPlanetCount", "The minimum number of planets is two");
+			}
 
             _maximumPlanetCount = maximumPlanetCount;
             _maximumPlanetSize = maximumPlanetSize;
-            _randomGenerator = new Random(Environment.TickCount);
+			_minimumPlanetSize = minimumPlanetSize;
+			_minimumPlanetDistance = minimumPlanetDistance;
+            _randomGenerator = new Random((galaxySeed == 0 ?Environment.TickCount:galaxySeed));
             _galaxy = new Galaxy(galaxySize);
         }
 
+
+		private bool IsPointInCircle(Point point, Point circlePoint, int circleR)
+		{
+			var xs = 0;
+			var ys = 0;
+			xs = circlePoint.X - point.X;
+			xs = xs * xs;
+			ys = circlePoint.Y - point.Y;
+			ys = ys * ys;
+
+			var distance = (int)Math.Floor((decimal)Math.Sqrt(xs + ys));
+
+			return distance <= circleR;
+
+		}
+
         public Galaxy Generate()
         {
-            for (var i = 1; i <= _maximumPlanetCount; i++)
-            {
-                AddPlanet();
-            }
+			_galaxy.Planets.Clear();
+			PopulateGalaxy();
+			_keepGrowing = true;
+			while (_keepGrowing)
+			{
+				GrowPlanets();
+			}
+
+			CleanUp();
+			PopulatePoints();
 
             return _galaxy;
         }
 
-        private void AddPlanet()
-        {
-            var currentMaxPlanetSize = DetermineMaxPlanetSize();
-            if (currentMaxPlanetSize < 1)
-            {
-                return;
-            }
+		private void PopulatePoints()
+		{
+			_galaxy.Points.ForEach(point => point.Populated = _galaxy.Planets.Any(planet => IsPointInCircle(point, planet.Point, planet.Size)));
+		}
 
-            currentMaxPlanetSize = (currentMaxPlanetSize < _maximumPlanetSize) ? currentMaxPlanetSize : _maximumPlanetSize;
+		private bool CollisionWall(Planet planet)
+		{
+			var galaxySize = (int)Math.Round(Math.Sqrt(_galaxy.Points.Count));
 
-            var planet = new Planet(_randomGenerator.Next(1, currentMaxPlanetSize + 1));
+			var topX = planet.Point.X - planet.Size;
+			var topY = planet.Point.Y - planet.Size;
+			var bottomX = planet.Point.X + planet.Size;
+			var bottomY = planet.Point.Y + planet.Size;
 
-            var availablePoints = AvailablePointsForPlanet(planet);
-            var selectedPointIndex = _randomGenerator.Next(0, availablePoints.Count());
+			var widthCheck = ((topX > 0) && (bottomX < galaxySize));
+			var heightCheck = ((topY > 0) && (bottomY < galaxySize));
+	
+			return !(widthCheck && heightCheck);
+		}
 
-            planet.Point = availablePoints[selectedPointIndex];
-            planet.Point.Populated = true;
-            PopulatePoints(planet.Point, planet.Size);
-            _galaxy.Planets.Add(planet);
-        }
+		private bool CollisionPlanet(Planet planet1, Planet planet2)
+		{
+			if (Math.Abs(planet2.Point.X - planet1.Point.X) > (planet2.Size + planet1.Size + _minimumPlanetDistance)) return false;
+			if (Math.Abs(planet2.Point.Y - planet1.Point.Y) > (planet2.Size + planet1.Size + _minimumPlanetDistance)) return false;
 
-        private void PopulatePoints(Point point, int size)
-        {
-            for (int i = 1; i <= size; i++)
-            {
-                var north = _galaxy.Points.SingleOrDefault(northPoint => northPoint.X == point.X && northPoint.Y == point.Y + i);
-                var south = _galaxy.Points.SingleOrDefault(southPoint => southPoint.X == point.X && southPoint.Y == point.Y - 1);
-                var east = _galaxy.Points.SingleOrDefault(eastPoint => eastPoint.X == point.X + i && eastPoint.Y == point.Y);
-                var west = _galaxy.Points.SingleOrDefault(westPoint => westPoint.X == point.X - i && westPoint.Y == point.Y);
+			var distance = GetDistance(planet1, planet2);
+			return !(distance > (planet1.Size + planet2.Size + _minimumPlanetDistance));
+		}
 
-                if (north != null)
-                    north.Populated = true;
-                if (south != null)
-                    south.Populated = true;
-                if (east != null)
-                    east.Populated = true;
-                if (west != null)
-                    west.Populated = true;
-            }
-        }
+		private int GetDistance(Planet planet1, Planet planet2)
+		{
+			var xs = 0;
+			var ys = 0;
+			xs = planet2.Point.X - planet1.Point.X;
+			xs = xs * xs;
+			ys = planet2.Point.Y - planet1.Point.Y;
+			ys = ys * ys;
+			return (int)Math.Floor((decimal)Math.Sqrt(xs + ys));
+		}
 
-        private List<Point> AvailablePointsForPlanet(Planet planet)
-        {
-            var availablePoints = new List<Point>();
-            foreach (var point in _galaxy.Points.Where(x => x.Populated == false))
-            {
-                var distances = FetchPointDistances(point);
-                if (distances.Min() >= planet.Size)
-                {
-                    availablePoints.Add(point);
-                }
-            }
+		private void PopulateGalaxy()
+		{
+			var galaxySize =  (int)Math.Round(Math.Sqrt(_galaxy.Points.Count));
 
-            return availablePoints;
-        }
+			for(var i = 0; i < _maximumPlanetCount; i++)
+			{
 
-        private int DetermineMaxPlanetSize()
-        {
-            var maxPlanetSize = 0;
+				var randomX = (int)Math.Floor((decimal)(_randomGenerator.Next(galaxySize)));
+				var randomY = (int)Math.Floor((decimal)(_randomGenerator.Next(galaxySize)));
+				var planet = new Planet(1);
+				planet.Point = new Point { X = randomX, Y = randomY };
+				_galaxy.Planets.Add(planet);
+			}
+		}
 
-            Parallel.ForEach(_galaxy.Points, point =>
-                {
-                    var distances = FetchPointDistances(point);
-                    var minimum = distances.Min();
+		private void ClearGalaxy()
+		{
+			_galaxy.Planets.Clear();
+		}
 
-                    if (maxPlanetSize < minimum)
-                    {
-                        maxPlanetSize = minimum;
-                    }
-                });
+		private bool GrowPlanet(Planet planet)
+		{
+			var canGrow = planet.Size <= _maximumPlanetSize;
+			for (var index = 0; index < _galaxy.Planets.Count; index++)
+			{
+				if (_galaxy.Planets[index] != planet)
+				{
+					canGrow = canGrow && !CollisionPlanet(_galaxy.Planets[index],planet) && !CollisionWall(planet);
+				}
+			}
+    
+			if(canGrow)
+			{
+				planet.Size++;
+			}
 
-            return maxPlanetSize;
-        }
+			return canGrow;
+		}
 
-        public IEnumerable<int> FetchPointDistances(Point point)
-        {
-            var distances = new List<int>
-                    {
-                        OpenDistance(point, Direction.North),
-                        OpenDistance(point, Direction.South),
-                        OpenDistance(point, Direction.East),
-                        OpenDistance(point, Direction.West)
-                    };
-            return distances;
-        }
+		private void GrowPlanets()
+		{
+			var growingCount = _galaxy.Planets.Count;
+			for(var index = 0; index < _galaxy.Planets.Count; index++)
+			{
+				var growth = GrowPlanet(_galaxy.Planets[index]);
+				if(!growth) growingCount--;
+			
+			}
+			_keepGrowing = growingCount > 0;
+		}
 
-        private int OpenDistance(Point point, Direction direction)
-        {
-            var distance = 0;
-            var mapSize = _galaxy.Points.Max(x => x.X);
-            var pointTuple = new Tuple<int, int>(point.X, point.Y);
+		private void CleanUp()
+		{
+			for (var index = 0; index < _galaxy.Planets.Count; index++)
+			{
+				if (_galaxy.Planets[index].Size <= _minimumPlanetSize)
+				{
+					_galaxy.Planets.RemoveAt(index);
+				}
 
-            Func<int, int, Tuple<int, int>> adjustCoordinates;
-
-            switch (direction)
-            {
-                case Direction.North:
-                    adjustCoordinates = (x, y) => { y--; return new Tuple<int, int>(x, y); };
-                    break;
-                case Direction.South:
-                    adjustCoordinates = (x, y) => { y++; return new Tuple<int, int>(x, y); };
-                    break;
-                case Direction.East:
-                    adjustCoordinates = (x, y) => { x++; return new Tuple<int, int>(x, y); };
-                    break;
-                case Direction.West:
-                    adjustCoordinates = (x, y) => { x--; return new Tuple<int, int>(x, y); };
-                    break;
-                default:
-                    throw new ArgumentException("A direction is required before calculating distance");
-            }
-
-            while (pointTuple.Item1 >= 1 && pointTuple.Item2 >= 1 && pointTuple.Item1 < mapSize && pointTuple.Item2 < mapSize)
-            {
-                pointTuple = adjustCoordinates(pointTuple.Item1, pointTuple.Item2);
-                var existingPoint =
-                    _galaxy.Points.SingleOrDefault(
-                        tempPoint => tempPoint.X == pointTuple.Item1 && tempPoint.Y == pointTuple.Item2);
-                if (existingPoint != null && !existingPoint.Populated)
-                {
-                    distance++;
-                }
-            }
-
-            return distance;
-        }
+			}
+		}
     }
 }
