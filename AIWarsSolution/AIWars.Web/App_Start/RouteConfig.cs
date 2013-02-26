@@ -13,6 +13,15 @@ namespace AIWars.Web
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
+            //var galaxyGenerator = new GalaxyGenerator(50, 10, 4, 75, 5);
+            //int maximumPlanetCount, int maximumPlanetSize, int minimumPlanetSize, int galaxySize, int minimumPlanetDistance
+
+            routes.MapRoute(
+                "GenerateGalaxyRoute",
+                "Test/Galaxy/{galaxySize}/{maximumPlanetCount}/{maximumPlanetSize}/{minimumPlanetSize}/{minimumPlanetDistance}",
+                new { controller = "Test", action = "Galaxy", galaxySize = 75, maximumPlanetCount = 50, maximumPlanetSize = 10, minimumPlanetSize = 4, minimumPlanetDistance = 5 }
+                );
+
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
