@@ -19,7 +19,7 @@ namespace AIWars.Web
             routes.MapRoute(
                 "GenerateGalaxyRoute",
                 "Test/Galaxy/{galaxySize}/{maximumPlanetCount}/{maximumPlanetSize}/{minimumPlanetSize}/{minimumPlanetDistance}",
-                new { controller = "Test", action = "Galaxy", galaxySize = 75, maximumPlanetCount = 50, maximumPlanetSize = 10, minimumPlanetSize = 4, minimumPlanetDistance = 5 }
+                new { controller = "Test", action = "Galaxy", galaxySize = 600, maximumPlanetCount = 25, maximumPlanetSize = 200, minimumPlanetSize = 15, minimumPlanetDistance = 50 }
                 );
 
             routes.MapRoute(

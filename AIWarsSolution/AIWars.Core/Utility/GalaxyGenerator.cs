@@ -34,22 +34,10 @@ namespace AIWars.Core.Utility
             _galaxy = new Galaxy(galaxySize);
         }
 
-
-		private bool IsPointInCircle(Point point, Point circlePoint, int circleR)
-		{
-			var xs = 0;
-			var ys = 0;
-			xs = circlePoint.X - point.X;
-			xs = xs * xs;
-			ys = circlePoint.Y - point.Y;
-			ys = ys * ys;
-
-			var distance = (int)Math.Floor((decimal)Math.Sqrt(xs + ys));
-
-			return distance <= circleR;
-
-		}
-
+        /// <summary>
+        /// Will generate a galaxy with the provided constructor constraints
+        /// </summary>
+        /// <returns></returns>
         public Galaxy Generate()
         {
 			_galaxy.Planets.Clear();
@@ -66,11 +54,78 @@ namespace AIWars.Core.Utility
             return _galaxy;
         }
 
+        /// <summary>
+        /// Pre-populates galaxy with size 1 planets at random locations
+        /// </summary>
+        private void PopulateGalaxy()
+        {
+            var galaxySize = (int)Math.Round(Math.Sqrt(_galaxy.Points.Count));
+
+            for (var i = 0; i < _maximumPlanetCount; i++)
+            {
+                var planet = new Planet(1);
+                planet.Point = new Point
+                {
+                    X = (int)Math.Floor((decimal)(_randomGenerator.Next(galaxySize))),
+                    Y = (int)Math.Floor((decimal)(_randomGenerator.Next(galaxySize)))
+                };
+                _galaxy.Planets.Add(planet);
+            }
+        }
+
+        /// <summary>
+        /// Handles the growing of a galaxies planets and the indicator to stop growing
+        /// </summary>
+        private void GrowPlanets()
+        {
+            var growingCount = _galaxy.Planets.Count;
+            _galaxy.Planets.ForEach(planet => growingCount = GrowPlanet(planet) ? growingCount : growingCount - 1);
+            _keepGrowing = growingCount > 0;
+        }
+
+        /// <summary>
+        /// Does a forward check to see if a planets growth will break constraints.
+        /// If so, do not grow planet
+        /// </summary>
+        /// <returns>True if planet grew</returns>
+        private bool GrowPlanet(Planet planet)
+        {
+            planet.Size++;
+
+            var planetCollision = _galaxy.Planets.Any(x => CollisionPlanet(x, planet));
+            var wallCollision = CollisionWall(planet);
+            var planetTooLarge = planet.Size > _maximumPlanetSize;
+
+            var canGrow = !planetTooLarge && !planetCollision && !wallCollision;
+            if (!canGrow)
+            {
+                planet.Size--;
+            }
+
+            return canGrow;
+        }
+
+        /// <summary>
+        /// Will remove all planets that fall below the minimum planet size
+        /// </summary>
+        private void CleanUp()
+        {
+            _galaxy.Planets.RemoveAll(x => x.Size < _minimumPlanetSize);
+        }
+
+        /// <summary>
+        /// For each galaxy point, this checks if the point is populated by a planet, if so,
+        /// set the populated flag on the point
+        /// </summary>
 		private void PopulatePoints()
 		{
 			_galaxy.Points.ForEach(point => point.Populated = _galaxy.Planets.Any(planet => IsPointInCircle(point, planet.Point, planet.Size)));
 		}
 
+        /// <summary>
+        /// Determine if a given planet is outside of the galaxy walls
+        /// </summary>
+        /// <returns>True if the planet is outside of the constraints</returns>
 		private bool CollisionWall(Planet planet)
 		{
 			var galaxySize = (int)Math.Round(Math.Sqrt(_galaxy.Points.Count));
@@ -86,87 +141,41 @@ namespace AIWars.Core.Utility
 			return !(widthCheck && heightCheck);
 		}
 
+        /// <summary>
+        /// Checks if the given planets fall within "collision" range of each other
+        /// (this includes the minimum planet distance)
+        /// </summary>
+        /// <returns>True if the two planets are too close</returns>
 		private bool CollisionPlanet(Planet planet1, Planet planet2)
 		{
+            if (planet1 == planet2) return false;
 			if (Math.Abs(planet2.Point.X - planet1.Point.X) > (planet2.Size + planet1.Size + _minimumPlanetDistance)) return false;
 			if (Math.Abs(planet2.Point.Y - planet1.Point.Y) > (planet2.Size + planet1.Size + _minimumPlanetDistance)) return false;
 
-			var distance = GetDistance(planet1, planet2);
+			var distance = GetDistance(planet1.Point, planet2.Point);
 			return !(distance > (planet1.Size + planet2.Size + _minimumPlanetDistance));
 		}
 
-		private int GetDistance(Planet planet1, Planet planet2)
-		{
-			var xs = 0;
-			var ys = 0;
-			xs = planet2.Point.X - planet1.Point.X;
-			xs = xs * xs;
-			ys = planet2.Point.Y - planet1.Point.Y;
-			ys = ys * ys;
-			return (int)Math.Floor((decimal)Math.Sqrt(xs + ys));
-		}
+        #region Math Helpers
+        /// <summary>
+        /// Checks the distance between two points
+        /// </summary>
+        private double GetDistance(Point point1, Point point2)
+        {
+            double a = (double)(point2.X - point1.X);
+            double b = (double)(point2.Y - point1.Y);
+            return Math.Sqrt(a * a + b * b);
+        }
 
-		private void PopulateGalaxy()
-		{
-			var galaxySize =  (int)Math.Round(Math.Sqrt(_galaxy.Points.Count));
+        /// <summary>
+        /// Checks if a given point falls within a given circle
+        /// </summary>
+        private bool IsPointInCircle(Point point, Point circlePoint, int circleR)
+        {
+            var distance = GetDistance(point, circlePoint);
+            return distance <= circleR;
+        }
+        #endregion
 
-			for(var i = 0; i < _maximumPlanetCount; i++)
-			{
-
-				var randomX = (int)Math.Floor((decimal)(_randomGenerator.Next(galaxySize)));
-				var randomY = (int)Math.Floor((decimal)(_randomGenerator.Next(galaxySize)));
-				var planet = new Planet(1);
-				planet.Point = new Point { X = randomX, Y = randomY };
-				_galaxy.Planets.Add(planet);
-			}
-		}
-
-		private void ClearGalaxy()
-		{
-			_galaxy.Planets.Clear();
-		}
-
-		private bool GrowPlanet(Planet planet)
-		{
-			var canGrow = planet.Size <= _maximumPlanetSize;
-			for (var index = 0; index < _galaxy.Planets.Count; index++)
-			{
-				if (_galaxy.Planets[index] != planet)
-				{
-					canGrow = canGrow && !CollisionPlanet(_galaxy.Planets[index],planet) && !CollisionWall(planet);
-				}
-			}
-    
-			if(canGrow)
-			{
-				planet.Size++;
-			}
-
-			return canGrow;
-		}
-
-		private void GrowPlanets()
-		{
-			var growingCount = _galaxy.Planets.Count;
-			for(var index = 0; index < _galaxy.Planets.Count; index++)
-			{
-				var growth = GrowPlanet(_galaxy.Planets[index]);
-				if(!growth) growingCount--;
-			
-			}
-			_keepGrowing = growingCount > 0;
-		}
-
-		private void CleanUp()
-		{
-			for (var index = 0; index < _galaxy.Planets.Count; index++)
-			{
-				if (_galaxy.Planets[index].Size <= _minimumPlanetSize)
-				{
-					_galaxy.Planets.RemoveAt(index);
-				}
-
-			}
-		}
     }
 }
