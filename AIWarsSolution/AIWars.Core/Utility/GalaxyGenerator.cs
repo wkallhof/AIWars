@@ -18,7 +18,7 @@ namespace AIWars.Core.Utility
 
 		private bool _keepGrowing;
 
-        public GalaxyGenerator(int maximumPlanetCount, int maximumPlanetSize, int minimumPlanetSize, int galaxySize, int minimumPlanetDistance, int galaxySeed = 0)
+        public GalaxyGenerator(int maximumPlanetCount, int maximumPlanetSize, int minimumPlanetSize, int galaxyWidth, int galaxyHeight, int minimumPlanetDistance, int galaxySeed = 0)
         {
 
 			if (maximumPlanetCount < 2)
@@ -31,7 +31,7 @@ namespace AIWars.Core.Utility
 			_minimumPlanetSize = minimumPlanetSize;
 			_minimumPlanetDistance = minimumPlanetDistance;
             _randomGenerator = new Random((galaxySeed == 0 ?Environment.TickCount:galaxySeed));
-            _galaxy = new Galaxy(galaxySize);
+            _galaxy = new Galaxy(galaxyWidth, galaxyHeight);
         }
 
         /// <summary>
@@ -59,15 +59,14 @@ namespace AIWars.Core.Utility
         /// </summary>
         private void PopulateGalaxy()
         {
-            var galaxySize = (int)Math.Round(Math.Sqrt(_galaxy.Points.Count));
 
             for (var i = 0; i < _maximumPlanetCount; i++)
             {
                 var planet = new Planet(1);
                 planet.Point = new Point
                 {
-                    X = (int)Math.Floor((decimal)(_randomGenerator.Next(galaxySize))),
-                    Y = (int)Math.Floor((decimal)(_randomGenerator.Next(galaxySize)))
+                    X = (int)Math.Floor((decimal)(_randomGenerator.Next(_galaxy.Width))),
+                    Y = (int)Math.Floor((decimal)(_randomGenerator.Next(_galaxy.Height)))
                 };
                 _galaxy.Planets.Add(planet);
             }
@@ -128,15 +127,13 @@ namespace AIWars.Core.Utility
         /// <returns>True if the planet is outside of the constraints</returns>
 		private bool CollisionWall(Planet planet)
 		{
-			var galaxySize = (int)Math.Round(Math.Sqrt(_galaxy.Points.Count));
-
 			var topX = planet.Point.X - planet.Size;
 			var topY = planet.Point.Y - planet.Size;
 			var bottomX = planet.Point.X + planet.Size;
 			var bottomY = planet.Point.Y + planet.Size;
 
-			var widthCheck = ((topX > 0) && (bottomX < galaxySize));
-			var heightCheck = ((topY > 0) && (bottomY < galaxySize));
+			var widthCheck = ((topX > 0) && (bottomX < _galaxy.Width));
+			var heightCheck = ((topY > 0) && (bottomY < _galaxy.Height));
 	
 			return !(widthCheck && heightCheck);
 		}

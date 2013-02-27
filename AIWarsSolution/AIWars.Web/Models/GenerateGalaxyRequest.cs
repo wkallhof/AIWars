@@ -7,7 +7,8 @@ namespace AIWars.Web.Models
 {
     public class GenerateGalaxyRequest
     {
-        public int GalaxySize { get; set; }
+        public int GalaxyWidth { get; set; }
+        public int GalaxyHeight { get; set; }
         public int MaximumPlanetCount { get; set; }
         public int MaximumPlanetSize { get; set; }
         public int MinimumPlanetSize { get; set; }

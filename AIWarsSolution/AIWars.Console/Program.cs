@@ -14,7 +14,7 @@ namespace AIWars.ConsoleApp
         {
             Console.WriteLine("Generating Galaxy");
 			//var galaxyGenerator = new GalaxyGenerator(10, 4, 1, 50, 2);
-			var galaxyGenerator = new GalaxyGenerator(50, 10, 4, 75, 5);
+			var galaxyGenerator = new GalaxyGenerator(50, 10, 4, 75,75, 5);
             var galaxy = galaxyGenerator.Generate();
 
 

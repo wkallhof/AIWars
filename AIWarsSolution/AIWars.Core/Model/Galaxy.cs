@@ -10,13 +10,18 @@ namespace AIWars.Core.Model
     {
         private readonly List<Planet> _planets;
         private readonly List<Point> _points;
+        public readonly int Height;
+        public readonly int Width;
 
-        public Galaxy(int galaxySize)
+        public Galaxy(int galaxyWidth, int galaxyHeight)
         {
             _planets = new List<Planet>();
             _points = new List<Point>();
 
-            PopulatePoints(galaxySize);
+            Height = galaxyHeight;
+            Width = galaxyWidth;
+
+            PopulatePoints(galaxyWidth, galaxyHeight);
         }
 
         public List<Planet> Planets
@@ -35,11 +40,11 @@ namespace AIWars.Core.Model
             }
         }
 
-        private void PopulatePoints(int galaxySize)
+        private void PopulatePoints(int galaxyWidth, int galaxyHeight)
         {
-            for (int x = 0; x <= galaxySize; x++)
+            for (int x = 0; x <= galaxyWidth; x++)
             {
-                for (int y = 0; y <= galaxySize; y++)
+                for (int y = 0; y <= galaxyHeight; y++)
                 {
                     _points.Add(new Point { Populated = false, X = x, Y = y });
                 }

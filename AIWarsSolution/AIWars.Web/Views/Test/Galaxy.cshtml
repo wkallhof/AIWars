@@ -92,11 +92,12 @@
         }
         
         $().ready(function(){
-            var size = @Model.Points.Max(x => x.X);
+            var width = @Model.Width;
+            var height = @Model.Height;
         
             var $galaxies = $("canvas");
             $galaxies.each(function(){
-                var myGalaxy = new galaxy(this, size, size);
+                var myGalaxy = new galaxy(this, width, height);
                 @foreach (var planet in Model.Planets)
                 {
                     @: myGalaxy.drawPlanet(@planet.Point.X, @planet.Point.Y, @planet.Size);

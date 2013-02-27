@@ -16,7 +16,7 @@ namespace AIWars.Core.Tests
 		public void Generate_returns_a_galaxy_object()
 		{
 			//Arrage
-			var g = new GalaxyGenerator(50, 10, 4, 75, 5);
+			var g = new GalaxyGenerator(50, 10, 4, 75,75, 5);
 
 			//Act
 			var result = g.Generate();
@@ -30,7 +30,7 @@ namespace AIWars.Core.Tests
 		public void Generated_planet_count_does_not_exceed_the_maximum_planet_count_requested()
 		{
 			//Arrange
-			var g = new GalaxyGenerator(2, 10, 4, 75, 5);
+			var g = new GalaxyGenerator(2, 10, 4, 75,75, 5);
 
 			//Act
 			var result = g.Generate();
@@ -46,7 +46,7 @@ namespace AIWars.Core.Tests
 		public void The_number_of_planets_requested_can_not_be_less_than_two()
 		{
 			//Arrange
-			var g = new GalaxyGenerator(1, 10, 4, 75, 5);
+            var g = new GalaxyGenerator(1, 10, 4, 75, 75, 5);
 
 			//Act
 			var result = g.Generate();
@@ -57,7 +57,7 @@ namespace AIWars.Core.Tests
 		public void No_planets_generated_can_be_greater_than_the_max_planet_size_requested()
 		{
 			//Arrange
-			var g = new GalaxyGenerator(50, 5, 1, 75, 5);
+            var g = new GalaxyGenerator(50, 5, 1, 75, 75, 5);
 
 			//Act
 			var galaxy = g.Generate();
@@ -70,13 +70,13 @@ namespace AIWars.Core.Tests
 		public void No_planets_generated_can_be_less_than_the_min_planet_size_requested()
 		{
 			//Arrange
-			var g = new GalaxyGenerator(50, 10, 4, 75, 5);
+            var g = new GalaxyGenerator(50, 10, 4, 75, 75, 5);
 
 			//Act
 			var galaxy = g.Generate();
 
 			//Assert
-			Assert.IsFalse(galaxy.Planets.Any(x => x.Size <= 4));
+			Assert.IsFalse(galaxy.Planets.Any(x => x.Size < 4));
 		}
 
 		//The generated galaxy matches the galaxy size requested
@@ -84,7 +84,7 @@ namespace AIWars.Core.Tests
 		public void The_generated_galaxy_matches_the_galaxy_size_requested()
 		{
 			//Arrange
-			var g = new GalaxyGenerator(50, 10, 4, 50, 5);
+            var g = new GalaxyGenerator(50, 10, 4, 50, 50, 5);
 
 			//Act
 			var galaxy = g.Generate();
