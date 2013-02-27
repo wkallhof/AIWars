@@ -61,16 +61,19 @@
             this.drawPlanet = function (x, y, radius) {
                 if (ctx) {
 
+                    var c1 = Math.floor(Math.random()*256);
+                    var c2 = Math.floor(Math.random()*101);
+                    var c3 = Math.floor((Math.random()));
+
                     ctx.beginPath();
                     ctx.arc(x, y, radius, 0, Math.PI*2, false);
                     ctx.closePath();
 
                     // create radial gradient
                     var grd = ctx.createRadialGradient(x, y, 5, x, y, radius);
-                    grd.addColorStop(0, "rgba(210, 210, 210, 0.5)");
-                    grd.addColorStop(.6, "rgba(110, 110, 110, 0.5)");
-                    grd.addColorStop(.8, "rgba(10, 10, 10, 0.5)");
-                    grd.addColorStop(1, "rgba(20, 20, 20, 0.005)");
+                    grd.addColorStop(0, "hsla("+c1+", "+c2+"%, 50%, 0.8)");
+                    grd.addColorStop(0.8, "hsla("+c1+", "+Math.floor(c2/2)+"%, 50%, 0.5)");
+                    grd.addColorStop(1, "hsla("+c1+", 10%, 10%, "+c3+")");
                     ctx.fillStyle = grd;
                     ctx.fill();
 
