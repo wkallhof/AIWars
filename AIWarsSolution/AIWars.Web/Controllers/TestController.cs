@@ -17,7 +17,7 @@ namespace AIWars.Web.Controllers
         {
             var galaxyGenerator = new GalaxyGenerator(request.MaximumPlanetCount, request.MaximumPlanetSize,
                                                       request.MinimumPlanetSize, request.GalaxySize,
-                                                      request.MinimumPlanetSize);
+                                                      request.MinimumPlanetDistance);
             var galaxy = galaxyGenerator.Generate();
 
             return View(galaxy);

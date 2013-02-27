@@ -20,8 +20,12 @@
         .galaxy-canvas {		
             margin: -1px;
             margin-top: -2px;	
-            background-color: black;
-            border: 1px dashed #280000;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            background-image: url('http://www.hackworks.net/demos/space-opt.jpg');
+            background-size: cover;
         }
     </style>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -71,9 +75,9 @@
 
                     // create radial gradient
                     var grd = ctx.createRadialGradient(x, y, 5, x, y, radius);
-                    grd.addColorStop(0, "hsla("+c1+", "+c2+"%, 50%, 0.8)");
-                    grd.addColorStop(0.8, "hsla("+c1+", "+Math.floor(c2/2)+"%, 50%, 0.5)");
-                    grd.addColorStop(1, "hsla("+c1+", 10%, 10%, "+c3+")");
+                    grd.addColorStop(0, "hsla("+c1+", "+c2+"%, 50%, 1)");
+                    grd.addColorStop(0.9, "hsla("+c1+", "+Math.floor(c2/2)+"%, 55%, 1)");
+                    grd.addColorStop(1, "hsla("+c1+", "+c2+"%, 50%, "+c3+")");
                     ctx.fillStyle = grd;
                     ctx.fill();
 
